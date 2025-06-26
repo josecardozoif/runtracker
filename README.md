@@ -14,7 +14,7 @@ Uma aplicação web para cálculos relacionados à corrida, incluindo pace, temp
 ## Como executar
 
 1. Clone o repositório
-2. Instale as dependências: `pip install -r requirements.txt`
+2. Instale as dependências: `pip install -r requirements.txt` ou apenas `pip install flask requests`
 3. Execute: `python app.py`
 4. Acesse: `http://localhost:5000`
 
