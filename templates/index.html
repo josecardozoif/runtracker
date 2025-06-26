@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RunTracker - Calculadoras de Corrida</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>🏃‍♂️ RunTracker</h1>
+      <p>Suas calculadoras de corrida e condições climáticas</p>
+    </div>
+
+    <div class="container">
+      <!-- Calculadora de Pace -->
+      <div class="card">
+        <h2>🏃 Calculadora de Pace</h2>
+        <div class="form-group">
+          <label>Distância (km):</label>
+          <input
+            type="number"
+            id="paceDistance"
+            step="0.1"
+            placeholder="Ex: 10"
+          />
+        </div>
+        <div class="form-group">
+          <label>Tempo (hh:mm:ss):</label>
+          <input type="text" id="paceTime" placeholder="Ex: 01:30:00" />
+        </div>
+        <button class="btn" onclick="calculatePace()">Calcular Pace</button>
+        <div class="result" id="paceResult"></div>
+      </div>
+
+      <!-- Calculadora de Tempo -->
+      <div class="card">
+        <h2>⏱️ Calculadora de Tempo</h2>
+        <div class="form-group">
+          <label>Distância (km):</label>
+          <input
+            type="number"
+            id="timeDistance"
+            step="0.1"
+            placeholder="Ex: 21.1"
+          />
+        </div>
+        <div class="form-group">
+          <label>Pace desejado (mm:ss por km):</label>
+          <input type="text" id="timePace" placeholder="Ex: 05:30" />
+        </div>
+        <button class="btn" onclick="calculateTime()">Calcular Tempo</button>
+        <div class="result" id="timeResult"></div>
+      </div>
+
+      <!-- Calculadora de Distância -->
+      <div class="card">
+        <h2>📏 Calculadora de Distância</h2>
+        <div class="form-group">
+          <label>Tempo total (hh:mm:ss):</label>
+          <input type="text" id="distanceTime" placeholder="Ex: 02:00:00" />
+        </div>
+        <div class="form-group">
+          <label>Pace (mm:ss por km):</label>
+          <input type="text" id="distancePace" placeholder="Ex: 06:00" />
+        </div>
+        <button class="btn" onclick="calculateDistance()">
+          Calcular Distância
+        </button>
+        <div class="result" id="distanceResult"></div>
+      </div>
+
+      <!-- Conversor de Unidades -->
+      <div class="card">
+        <h2>🔄 Conversor de Unidades</h2>
+        <div class="form-group">
+          <label>Valor:</label>
+          <input
+            type="number"
+            id="converterValue"
+            step="0.001"
+            placeholder="Ex: 10"
+          />
+        </div>
+        <div class="form-group">
+          <label>De:</label>
+          <select id="converterFrom">
+            <option value="km">Quilômetros</option>
+            <option value="mi">Milhas</option>
+            <option value="m">Metros</option>
+            <option value="ft">Pés</option>
+            <option value="yd">Jardas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Para:</label>
+          <select id="converterTo">
+            <option value="mi">Milhas</option>
+            <option value="km">Quilômetros</option>
+            <option value="m">Metros</option>
+            <option value="ft">Pés</option>
+            <option value="yd">Jardas</option>
+          </select>
+        </div>
+        <button class="btn" onclick="convertUnits()">Converter</button>
+        <div class="result" id="converterResult"></div>
+      </div>
+
+      <!-- Condições Climáticas -->
+      <div class="card weather-card">
+        <h2>🌤️ Condições para Corrida</h2>
+        <div class="form-group">
+          <label>Sua localização (latitude, longitude):</label>
+          <input
+            type="text"
+            id="locationInput"
+            placeholder="Ex: -23.5505, -46.6333 (São Paulo)"
+          />
+        </div>
+        <button class="btn" onclick="getLocation()">
+          Usar Minha Localização
+        </button>
+        <button class="btn" onclick="checkWeather()">
+          Verificar Condições
+        </button>
+        <div id="weatherResult"></div>
+      </div>
+    </div>
+
+<script>
+// Função para calcular pace
+async function calculatePace() {
+    const distance = document.getElementById("paceDistance").value;
+    const time = document.getElementById("paceTime").value;
+    
+    try {
+        const response = await fetch('/calculate_pace', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({distance: distance, time: time})
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            document.getElementById("paceResult").innerHTML = result.error;
+        } else {
+            document.getElementById("paceResult").innerHTML = `
+                <strong style="color: rgba(32, 32, 32, 0.95);">Pace:</strong> ${result.pace} por km<br>
+                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade:</strong> ${result.speed} km/h
+            `;
+        }
+    } catch (error) {
+        document.getElementById("paceResult").innerHTML = "Erro ao calcular. Tente novamente.";
+    }
+}
+
+// Função para calcular tempo
+async function calculateTime() {
+    const distance = document.getElementById("timeDistance").value;
+    const pace = document.getElementById("timePace").value;
+    
+    try {
+        const response = await fetch('/calculate_time', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({distance: distance, pace: pace})
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            document.getElementById("timeResult").innerHTML = result.error;
+        } else {
+            document.getElementById("timeResult").innerHTML = `
+                <strong style="color: rgba(32, 32, 32, 0.95);">Tempo estimado:</strong> ${result.time}<br>
+                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade média:</strong> ${result.speed} km/h
+            `;
+        }
+    } catch (error) {
+        document.getElementById("timeResult").innerHTML = "Erro ao calcular. Tente novamente.";
+    }
+}
+
+// Função para calcular distância
+async function calculateDistance() {
+    const time = document.getElementById("distanceTime").value;
+    const pace = document.getElementById("distancePace").value;
+    
+    try {
+        const response = await fetch('/calculate_distance', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({time: time, pace: pace})
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            document.getElementById("distanceResult").innerHTML = result.error;
+        } else {
+            document.getElementById("distanceResult").innerHTML = `
+                <strong style="color: rgba(32, 32, 32, 0.95);">Distância:</strong> ${result.distance} km<br>
+                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade média:</strong> ${result.speed} km/h
+            `;
+        }
+    } catch (error) {
+        document.getElementById("distanceResult").innerHTML = "Erro ao calcular. Tente novamente.";
+    }
+}
+
+// Função para converter unidades
+async function convertUnits() {
+    const value = document.getElementById("converterValue").value;
+    const from = document.getElementById("converterFrom").value;
+    const to = document.getElementById("converterTo").value;
+    
+    try {
+        const response = await fetch('/convert_units', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({value: value, from: from, to: to})
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            document.getElementById("converterResult").innerHTML = result.error;
+        } else {
+            document.getElementById("converterResult").innerHTML = `
+                <strong style="color: rgba(32, 32, 32, 0.95);">${result.original_value} ${result.from_unit_name} = </strong>
+                ${result.result} ${result.to_unit_name}
+            `;
+        }
+    } catch (error) {
+        document.getElementById("converterResult").innerHTML = "Erro na conversão. Tente novamente.";
+    }
+}
+
+// Função para obter localização
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(4);
+                const lon = position.coords.longitude.toFixed(4);
+                document.getElementById("locationInput").value = `${lat}, ${lon}`;
+            },
+            function(error) {
+                alert("Erro ao obter localização: " + error.message);
+            }
+        );
+    } else {
+        alert("Geolocalização não é suportada neste navegador.");
+    }
+}
+
+// Função para verificar condições climáticas
+async function checkWeather() {
+    const location = document.getElementById("locationInput").value;
+    
+    if (!location) {
+        document.getElementById("weatherResult").innerHTML = "Por favor, insira uma localização.";
+        return;
+    }
+    
+    document.getElementById("weatherResult").innerHTML = '<div class="loading">Carregando dados climáticos...</div>';
+    
+    try {
+        const response = await fetch('/check_weather', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({location: location})
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            document.getElementById("weatherResult").innerHTML = `
+                <div class="weather-status weather-bad">
+                    ${result.error}
+                </div>
+            `;
+        } else {
+            const recommendationsHtml = result.recommendations.length > 0 ? `
+                <div style="margin-top: 15px; padding: 10px; background: #e9ecef; color: rgba(32, 32, 32, 0.95); border-radius: 8px;">
+                    <strong>Recomendações:</strong><br>
+                    ${result.recommendations.map(rec => `• ${rec}`).join('<br>')}
+                </div>
+            ` : '';
+            
+            document.getElementById("weatherResult").innerHTML = `
+                <div class="weather-status ${result.status_class}">
+                    ${result.status}
+                </div>
+                <div class="weather-details">
+                    <div class="weather-item">
+                        <strong>Temperatura</strong>
+                        ${result.temperature}°C
+                    </div>
+                    <div class="weather-item">
+                        <strong>Umidade</strong>
+                        ${result.humidity}%
+                    </div>
+                    <div class="weather-item">
+                        <strong>Chuva</strong>
+                        ${result.precipitation} mm
+                    </div>
+                    <div class="weather-item">
+                        <strong>Vento</strong>
+                        ${result.wind_speed} km/h
+                    </div>
+                </div>
+                ${recommendationsHtml}
+            `;
+        }
+    } catch (error) {
+        document.getElementById("weatherResult").innerHTML = `
+            <div class="weather-status weather-bad">
+                Erro ao carregar dados climáticos
+            </div>
+        `;
+        console.error("Erro:", error);
+    }
+}
+
+// Carregar condições ao iniciar (se geolocalização estiver disponível)
+window.onload = function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(4);
+                const lon = position.coords.longitude.toFixed(4);
+                document.getElementById("locationInput").value = `${lat}, ${lon}`;
+                checkWeather();
+            },
+            function(error) {
+                // Silencioso se o usuário negar permissão
+            }
+        );
+    }
+};
+</script>
+</body>
+</html>
+    
+  </body>
+</html>
