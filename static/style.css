@@ -6,7 +6,7 @@
 
 body {
   font-family: "Arial", sans-serif;
-  background: linear-gradient(135deg, #cb3131 20%, #764ba2 100%);
+  background-color: #392d2d;
   min-height: 100vh;
   padding: 20px;
 }
@@ -40,7 +40,7 @@ body {
   margin-bottom: 20px;
   font-size: 1.4em;
   text-align: center;
-  border-bottom: 2px solid #cb3131;
+  border-bottom: 2px solid #ad1a3f;
   padding-bottom: 10px;
 }
 
@@ -68,16 +68,17 @@ body {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #cb3131;
+  border-color: #ad1a3f;
 }
 
 .btn {
   width: 100%;
-  background: linear-gradient(135deg, #cb3131 20%, #764ba2 100%);
+  background-color: #ad1a3f;
   color: white;
   border: none;
   padding: 12px;
   border-radius: 8px;
+  font-weight: bold;
   font-size: 16px;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -93,7 +94,7 @@ body {
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #cb3131;
+  border-left: 4px solid #ad1a3f;
   min-height: 20px;
 }
 
@@ -151,7 +152,7 @@ body {
 
 .weather-item strong {
   display: block;
-  color: #cb3131;
+  color: #ad1a3f;
   margin-bottom: 5px;
 }
 
