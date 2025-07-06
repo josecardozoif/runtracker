@@ -26,7 +26,7 @@ body {
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  color: #62d420;
+  color: #4dad16;
 }
 
 .header p {
@@ -64,7 +64,7 @@ body {
 }
 
 .function-selector option:hover {
-  background-color: #62d420;
+  background-color: #4dad16;
   color: #fff;
 }
 
@@ -93,7 +93,7 @@ body {
   margin-bottom: 25px;
   font-size: 1.6em;
   text-align: center;
-  border-bottom: 2px solid #62d420;
+  border-bottom: 2px solid #4dad16;
   padding-bottom: 15px;
   font-weight: bold;
 }
@@ -105,9 +105,10 @@ body {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
-  font-weight: 500;
-  font-size: 14px;
+  margin-left: 2px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
 }
 
 .form-group input,
@@ -125,14 +126,14 @@ body {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #62d420;
+  border-color: #4dad16;
   box-shadow: 0 0 0 3px rgba(153, 234, 102, 0.1);
   transform: translateY(-2px);
 }
 
 .btn {
   width: 100%;
-  background-color: #62d420;
+  background-color: #4dad16;
   color: #fff;
   border: none;
   padding: 15px;
@@ -162,7 +163,7 @@ body {
   min-height: 20px;
   font-weight: 500;
   box-shadow: 0 4px 15px #1e251c;
-  border-left: solid 4px #62d420;
+  border-left: solid 4px #4dad16;
 }
 
 .weather-status {
@@ -207,7 +208,7 @@ body {
 
 .weather-item strong {
   display: block;
-  color: #62d420;
+  color: #4dad16;
   margin-bottom: 5px;
   font-size: 14px;
 }
@@ -223,12 +224,12 @@ body {
   padding: 20px;
   background-color: #1e251c;
   border-radius: 12px;
-  border-left: 4px solid #62d420;
+  border-left: 4px solid #4dad16;
   color: #fff;
 }
 
 .recommendations strong {
-  color: #62d420;
+  color: #4dad16;
   display: block;
   margin-bottom: 10px;
 }
