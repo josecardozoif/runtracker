@@ -3,6 +3,17 @@
 
 Uma aplicação web para cálculos relacionados à corrida, incluindo pace, tempo, distância e verificação de condições climáticas utilizando da API Open-Meteo.
 
+## Estrutura
+runtracker/
+├── app.py
+├── requirements.txt
+├── .gitignore
+├── README.md
+├── templates/
+│   └── index.html
+└── static/
+    └── style.css
+
 ## Funcionalidades
 
 - Calculadora de Pace

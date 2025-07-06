@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RunTracker - Calculadoras de Corrida</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
     <div class="header">
@@ -12,9 +16,20 @@
       <p>Suas calculadoras de corrida e condições climáticas</p>
     </div>
 
-    <div class="container">
+    <div class="main-container">
+      <div class="function-selector">
+        <select id="functionSelect" onchange="changeFunction()">
+          <option value="">Selecione uma funcionalidade</option>
+          <option value="pace">Calculadora de Pace</option>
+          <option value="time">Calculadora de Tempo</option>
+          <option value="distance">Calculadora de Distância</option>
+          <option value="converter">Conversor de Unidades</option>
+          <option value="weather">Condições Climáticas</option>
+        </select>
+      </div>
+
       <!-- Calculadora de Pace -->
-      <div class="card">
+      <div class="card hidden" id="paceCard">
         <h2>Calculadora de Pace</h2>
         <div class="form-group">
           <label>Distância (km):</label>
@@ -30,11 +45,11 @@
           <input type="text" id="paceTime" placeholder="Ex: 01:30:00" />
         </div>
         <button class="btn" onclick="calculatePace()">Calcular Pace</button>
-        <div class="result" id="paceResult"></div>
+        <div class="result hidden" id="paceResult"></div>
       </div>
 
       <!-- Calculadora de Tempo -->
-      <div class="card">
+      <div class="card hidden" id="timeCard">
         <h2>Calculadora de Tempo</h2>
         <div class="form-group">
           <label>Distância (km):</label>
@@ -50,11 +65,11 @@
           <input type="text" id="timePace" placeholder="Ex: 05:30" />
         </div>
         <button class="btn" onclick="calculateTime()">Calcular Tempo</button>
-        <div class="result" id="timeResult"></div>
+        <div class="result hidden" id="timeResult"></div>
       </div>
 
       <!-- Calculadora de Distância -->
-      <div class="card">
+      <div class="card hidden" id="distanceCard">
         <h2>Calculadora de Distância</h2>
         <div class="form-group">
           <label>Tempo total (hh:mm:ss):</label>
@@ -67,11 +82,11 @@
         <button class="btn" onclick="calculateDistance()">
           Calcular Distância
         </button>
-        <div class="result" id="distanceResult"></div>
+        <div class="result hidden" id="distanceResult"></div>
       </div>
 
       <!-- Conversor de Unidades -->
-      <div class="card">
+      <div class="card hidden" id="converterCard">
         <h2>Conversor de Unidades</h2>
         <div class="form-group">
           <label>Valor:</label>
@@ -103,11 +118,11 @@
           </select>
         </div>
         <button class="btn" onclick="convertUnits()">Converter</button>
-        <div class="result" id="converterResult"></div>
+        <div class="result hidden" id="converterResult"></div>
       </div>
 
       <!-- Condições Climáticas -->
-      <div class="card weather-card">
+      <div class="card hidden" id="weatherCard">
         <h2>Condições para Corrida</h2>
         <div class="form-group">
           <label>Sua localização (latitude, longitude):</label>
@@ -126,223 +141,358 @@
         <div id="weatherResult"></div>
       </div>
     </div>
+    <script>
+      // Função para trocar de funcionalidade
+      function changeFunction() {
+        const select = document.getElementById("functionSelect");
+        const cards = document.querySelectorAll(".card");
 
-<script>
-// Função para calcular pace
-async function calculatePace() {
-    const distance = document.getElementById("paceDistance").value;
-    const time = document.getElementById("paceTime").value;
-    
-    try {
-        const response = await fetch('/calculate_pace', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({distance: distance, time: time})
+        // Esconder todos os cards
+        cards.forEach((card) => {
+          card.classList.add("hidden");
         });
-        
-        const result = await response.json();
-        
-        if (result.error) {
-            document.getElementById("paceResult").innerHTML = result.error;
-        } else {
-            document.getElementById("paceResult").innerHTML = `
-                <strong style="color: rgba(32, 32, 32, 0.95);">Pace:</strong> ${result.pace} por km<br>
-                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade:</strong> ${result.speed} km/h
-            `;
-        }
-    } catch (error) {
-        document.getElementById("paceResult").innerHTML = "Erro ao calcular. Tente novamente.";
-    }
-}
 
-// Função para calcular tempo
-async function calculateTime() {
-    const distance = document.getElementById("timeDistance").value;
-    const pace = document.getElementById("timePace").value;
-    
-    try {
-        const response = await fetch('/calculate_time', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({distance: distance, pace: pace})
-        });
-        
-        const result = await response.json();
-        
-        if (result.error) {
-            document.getElementById("timeResult").innerHTML = result.error;
-        } else {
-            document.getElementById("timeResult").innerHTML = `
-                <strong style="color: rgba(32, 32, 32, 0.95);">Tempo estimado:</strong> ${result.time}<br>
-                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade média:</strong> ${result.speed} km/h
-            `;
+        // Mostrar o card selecionado
+        if (select.value) {
+          const selectedCard = document.getElementById(select.value + "Card");
+          if (selectedCard) {
+            selectedCard.classList.remove("hidden");
+          }
         }
-    } catch (error) {
-        document.getElementById("timeResult").innerHTML = "Erro ao calcular. Tente novamente.";
-    }
-}
+      }
 
-// Função para calcular distância
-async function calculateDistance() {
-    const time = document.getElementById("distanceTime").value;
-    const pace = document.getElementById("distancePace").value;
-    
-    try {
-        const response = await fetch('/calculate_distance', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({time: time, pace: pace})
-        });
-        
-        const result = await response.json();
-        
-        if (result.error) {
-            document.getElementById("distanceResult").innerHTML = result.error;
-        } else {
-            document.getElementById("distanceResult").innerHTML = `
-                <strong style="color: rgba(32, 32, 32, 0.95);">Distância:</strong> ${result.distance} km<br>
-                <strong style="color: rgba(32, 32, 32, 0.95);">Velocidade média:</strong> ${result.speed} km/h
-            `;
-        }
-    } catch (error) {
-        document.getElementById("distanceResult").innerHTML = "Erro ao calcular. Tente novamente.";
-    }
-}
+      // Função para mostrar resultado
+      function showResult(resultId, content) {
+        const resultElement = document.getElementById(resultId);
+        resultElement.innerHTML = content;
+        resultElement.classList.remove("hidden");
+      }
 
-// Função para converter unidades
-async function convertUnits() {
-    const value = document.getElementById("converterValue").value;
-    const from = document.getElementById("converterFrom").value;
-    const to = document.getElementById("converterTo").value;
-    
-    try {
-        const response = await fetch('/convert_units', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({value: value, from: from, to: to})
-        });
-        
-        const result = await response.json();
-        
-        if (result.error) {
-            document.getElementById("converterResult").innerHTML = result.error;
-        } else {
-            document.getElementById("converterResult").innerHTML = `
-                <strong style="color: rgba(32, 32, 32, 0.95);">${result.original_value} ${result.from_unit_name} = </strong>
-                ${result.result} ${result.to_unit_name}
-            `;
-        }
-    } catch (error) {
-        document.getElementById("converterResult").innerHTML = "Erro na conversão. Tente novamente.";
-    }
-}
-
-// Função para obter localização
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                const lat = position.coords.latitude.toFixed(4);
-                const lon = position.coords.longitude.toFixed(4);
-                document.getElementById("locationInput").value = `${lat}, ${lon}`;
-            },
-            function(error) {
-                alert("Erro ao obter localização: " + error.message);
-            }
+      // Função para calcular pace
+      function calculatePace() {
+        const distance = parseFloat(
+          document.getElementById("paceDistance").value
         );
-    } else {
-        alert("Geolocalização não é suportada neste navegador.");
-    }
-}
+        const timeStr = document.getElementById("paceTime").value;
 
-// Função para verificar condições climáticas
-async function checkWeather() {
-    const location = document.getElementById("locationInput").value;
-    
-    if (!location) {
-        document.getElementById("weatherResult").innerHTML = "Por favor, insira uma localização.";
-        return;
-    }
-    
-    document.getElementById("weatherResult").innerHTML = '<div class="loading">Carregando dados climáticos...</div>';
-    
-    try {
-        const response = await fetch('/check_weather', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({location: location})
-        });
-        
-        const result = await response.json();
-        
-        if (result.error) {
-            document.getElementById("weatherResult").innerHTML = `
-                <div class="weather-status weather-bad">
-                    ${result.error}
-                </div>
-            `;
-        } else {
-            const recommendationsHtml = result.recommendations.length > 0 ? `
-                <div style="margin-top: 15px; padding: 10px; background: #e9ecef; color: rgba(32, 32, 32, 0.95); border-radius: 8px;">
-                    <strong>Recomendações:</strong><br>
-                    ${result.recommendations.map(rec => `• ${rec}`).join('<br>')}
-                </div>
-            ` : '';
-            
-            document.getElementById("weatherResult").innerHTML = `
-                <div class="weather-status ${result.status_class}">
-                    ${result.status}
-                </div>
-                <div class="weather-details">
-                    <div class="weather-item">
-                        <strong>Temperatura</strong>
-                        ${result.temperature}°C
-                    </div>
-                    <div class="weather-item">
-                        <strong>Umidade</strong>
-                        ${result.humidity}%
-                    </div>
-                    <div class="weather-item">
-                        <strong>Chuva</strong>
-                        ${result.precipitation} mm
-                    </div>
-                    <div class="weather-item">
-                        <strong>Vento</strong>
-                        ${result.wind_speed} km/h
-                    </div>
-                </div>
-                ${recommendationsHtml}
-            `;
+        if (!distance || !timeStr) {
+          showResult("paceResult", "Por favor, preencha todos os campos.");
+          return;
         }
-    } catch (error) {
-        document.getElementById("weatherResult").innerHTML = `
-            <div class="weather-status weather-bad">
-                Erro ao carregar dados climáticos
-            </div>
-        `;
-        console.error("Erro:", error);
-    }
-}
 
-// Carregar condições ao iniciar (se geolocalização estiver disponível)
-window.onload = function() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                const lat = position.coords.latitude.toFixed(4);
-                const lon = position.coords.longitude.toFixed(4);
-                document.getElementById("locationInput").value = `${lat}, ${lon}`;
-                checkWeather();
-            },
-            function(error) {
-                // Silencioso se o usuário negar permissão
-            }
+        try {
+          const totalSeconds = timeToSeconds(timeStr);
+          const paceSeconds = totalSeconds / distance;
+          const paceTime = secondsToTime(paceSeconds);
+          const speedKmh = (distance / (totalSeconds / 3600)).toFixed(2);
+
+          showResult(
+            "paceResult",
+            `
+                    <strong>Pace:</strong> ${paceTime} por km<br>
+                    <strong>Velocidade:</strong> ${speedKmh} km/h
+                `
+          );
+        } catch (error) {
+          showResult(
+            "paceResult",
+            "Erro no cálculo. Verifique os valores inseridos."
+          );
+        }
+      }
+
+      // Função para calcular tempo
+      function calculateTime() {
+        const distance = parseFloat(
+          document.getElementById("timeDistance").value
         );
-    }
-};
-</script>
-</body>
-</html>
-    
+        const paceStr = document.getElementById("timePace").value;
+
+        if (!distance || !paceStr) {
+          showResult("timeResult", "Por favor, preencha todos os campos.");
+          return;
+        }
+
+        try {
+          const paceSeconds = timeToSeconds(paceStr);
+          const totalSeconds = paceSeconds * distance;
+          const totalTime = secondsToTime(totalSeconds);
+          const speedKmh = (distance / (totalSeconds / 3600)).toFixed(2);
+
+          showResult(
+            "timeResult",
+            `
+                    <strong>Tempo estimado:</strong> ${totalTime}<br>
+                    <strong>Velocidade média:</strong> ${speedKmh} km/h
+                `
+          );
+        } catch (error) {
+          showResult(
+            "timeResult",
+            "Erro no cálculo. Verifique os valores inseridos."
+          );
+        }
+      }
+
+      // Função para calcular distância
+      function calculateDistance() {
+        const timeStr = document.getElementById("distanceTime").value;
+        const paceStr = document.getElementById("distancePace").value;
+
+        if (!timeStr || !paceStr) {
+          showResult("distanceResult", "Por favor, preencha todos os campos.");
+          return;
+        }
+
+        try {
+          const totalSeconds = timeToSeconds(timeStr);
+          const paceSeconds = timeToSeconds(paceStr);
+          const distance = (totalSeconds / paceSeconds).toFixed(2);
+          const speedKmh = (distance / (totalSeconds / 3600)).toFixed(2);
+
+          showResult(
+            "distanceResult",
+            `
+                    <strong>Distância:</strong> ${distance} km<br>
+                    <strong>Velocidade média:</strong> ${speedKmh} km/h
+                `
+          );
+        } catch (error) {
+          showResult(
+            "distanceResult",
+            "Erro no cálculo. Verifique os valores inseridos."
+          );
+        }
+      }
+
+      // Função para converter unidades
+      function convertUnits() {
+        const value = parseFloat(
+          document.getElementById("converterValue").value
+        );
+        const fromUnit = document.getElementById("converterFrom").value;
+        const toUnit = document.getElementById("converterTo").value;
+
+        if (!value) {
+          showResult("converterResult", "Por favor, insira um valor.");
+          return;
+        }
+
+        try {
+          const toMeters = {
+            km: 1000,
+            mi: 1609.34,
+            m: 1,
+            ft: 0.3048,
+            yd: 0.9144,
+          };
+
+          const unitsPt = {
+            km: "quilômetros",
+            mi: "milhas",
+            m: "metros",
+            ft: "pés",
+            yd: "jardas",
+          };
+
+          const valueInMeters = value * toMeters[fromUnit];
+          const result = (valueInMeters / toMeters[toUnit]).toFixed(3);
+
+          showResult(
+            "converterResult",
+            `
+                    <strong>${value} ${unitsPt[fromUnit]} = </strong>
+                    ${result} ${unitsPt[toUnit]}
+                `
+          );
+        } catch (error) {
+          showResult(
+            "converterResult",
+            "Erro na conversão. Verifique os valores inseridos."
+          );
+        }
+      }
+
+      // Função para obter localização
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude.toFixed(4);
+              const lon = position.coords.longitude.toFixed(4);
+              document.getElementById("locationInput").value = `${lat}, ${lon}`;
+            },
+            function (error) {
+              alert("Erro ao obter localização: " + error.message);
+            }
+          );
+        } else {
+          alert("Geolocalização não é suportada neste navegador.");
+        }
+      }
+
+      // Função para verificar condições climáticas
+      async function checkWeather() {
+        const location = document.getElementById("locationInput").value;
+
+        if (!location) {
+          document.getElementById("weatherResult").innerHTML =
+            "Por favor, insira uma localização.";
+          return;
+        }
+
+        document.getElementById("weatherResult").innerHTML =
+          '<div class="loading">Carregando dados climáticos...</div>';
+
+        try {
+          const coords = location.split(",");
+          if (coords.length !== 2) {
+            throw new Error("Formato inválido. Use: latitude, longitude");
+          }
+
+          const lat = parseFloat(coords[0].trim());
+          const lon = parseFloat(coords[1].trim());
+
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&timezone=auto`;
+          const response = await fetch(url);
+          const weatherData = await response.json();
+
+          const temp = weatherData.current.temperature_2m;
+          const humidity = weatherData.current.relative_humidity_2m;
+          const precipitation = weatherData.current.precipitation;
+          const windSpeed = weatherData.current.wind_speed_10m;
+
+          // Avaliação das condições
+          let status = "Agradável";
+          let statusClass = "weather-good";
+          let recommendations = [];
+
+          if (temp > 27) {
+            status = "Muito quente - Desagradável";
+            statusClass = "weather-bad";
+            recommendations.push(
+              "Evite exercícios intensos",
+              "Hidrate-se bem",
+              "Prefira horários mais frescos"
+            );
+          } else if (temp < 11) {
+            status = "Muito frio - Cuidado";
+            statusClass = "weather-bad";
+            recommendations.push(
+              "Use roupas adequadas",
+              "Faça aquecimento prolongado"
+            );
+          } else if (precipitation > 2) {
+            status = "Chuva forte - Desagradável";
+            statusClass = "weather-bad";
+            recommendations.push(
+              "Prefira exercícios internos",
+              "Se correr, use roupas impermeáveis"
+            );
+          } else if (windSpeed > 25) {
+            status = "Vento forte - Desagradável";
+            statusClass = "weather-bad";
+            recommendations.push(
+              "Cuidado com a estabilidade",
+              "Evite áreas abertas"
+            );
+          } else if (temp >= 20 && temp <= 25 && precipitation <= 0.5) {
+            status = "Condições ideais!";
+            recommendations.push("Perfeito para corrida");
+          } else if (precipitation > 0.5 && precipitation <= 2) {
+            status = "Chuva leve - Aceitável";
+            recommendations.push("Leve capa de chuva");
+          }
+
+          const recommendationsHtml =
+            recommendations.length > 0
+              ? `
+                    <div class="recommendations">
+                        <strong>Recomendações:</strong>
+                        ${recommendations.map((rec) => `• ${rec}`).join("<br>")}
+                    </div>
+                `
+              : "";
+
+          document.getElementById("weatherResult").innerHTML = `
+                    <div class="weather-status ${statusClass}">
+                        ${status}
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-item">
+                            <strong>Temperatura</strong>
+                            ${temp}°C
+                        </div>
+                        <div class="weather-item">
+                            <strong>Umidade</strong>
+                            ${humidity}%
+                        </div>
+                        <div class="weather-item">
+                            <strong>Chuva</strong>
+                            ${precipitation} mm
+                        </div>
+                        <div class="weather-item">
+                            <strong>Vento</strong>
+                            ${windSpeed} km/h
+                        </div>
+                    </div>
+                    ${recommendationsHtml}
+                `;
+        } catch (error) {
+          document.getElementById("weatherResult").innerHTML = `
+                    <div class="weather-status weather-bad">
+                        Erro ao carregar dados climáticos
+                    </div>
+                `;
+        }
+      }
+
+      // Utilitários para conversão de tempo
+      function timeToSeconds(timeStr) {
+        const parts = timeStr.split(":");
+        if (parts.length === 2) {
+          return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        } else if (parts.length === 3) {
+          return (
+            parseInt(parts[0]) * 3600 +
+            parseInt(parts[1]) * 60 +
+            parseInt(parts[2])
+          );
+        }
+        return 0;
+      }
+
+      function secondsToTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+
+        if (hours > 0) {
+          return `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        } else {
+          return `${minutes.toString().padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
+        }
+      }
+
+      // Carregar condições ao iniciar (se geolocalização estiver disponível)
+      window.onload = function () {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude.toFixed(4);
+              const lon = position.coords.longitude.toFixed(4);
+              document.getElementById("locationInput").value = `${lat}, ${lon}`;
+            },
+            function (error) {
+              // Silencioso se o usuário negar permissão
+            }
+          );
+        }
+      };
+    </script>
   </body>
 </html>
